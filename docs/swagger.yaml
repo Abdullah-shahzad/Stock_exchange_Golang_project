@@ -1,0 +1,328 @@
+basePath: /api
+definitions:
+  controllers.CreateStockRequest:
+    properties:
+      price:
+        example: 150.25
+        type: number
+      ticker:
+        example: AAPL
+        type: string
+    type: object
+  controllers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  controllers.Stock:
+    properties:
+      id:
+        type: integer
+      price:
+        type: number
+      ticker:
+        type: string
+    required:
+    - price
+    - ticker
+    type: object
+  controllers.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  controllers.Transaction:
+    properties:
+      id:
+        type: integer
+      ticker:
+        type: string
+      timestamp:
+        type: string
+      transaction_price:
+        type: number
+      transaction_type:
+        type: string
+      transaction_volume:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  controllers.TransactionRequest:
+    properties:
+      ticker:
+        example: Tia
+        type: string
+      transaction_type:
+        example: BUY
+        type: string
+      transaction_volume:
+        example: 10
+        type: integer
+      username:
+        example: abdullah
+        type: string
+    type: object
+  controllers.User:
+    properties:
+      balance:
+        type: number
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  controllers.UserRequest:
+    properties:
+      initial_balance:
+        example: 1000
+        type: number
+      username:
+        example: abdullah
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A stock exchange API project using the Gin framework
+  title: Stock exchange API
+paths:
+  /stocks:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all stock entries from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.Stock'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Retrieve all stocks
+      tags:
+      - Stock
+    post:
+      consumes:
+      - application/json
+      description: Saves new stock data into the database.
+      parameters:
+      - description: Stock data
+        in: body
+        name: stock
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateStockRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Create a new stock entry
+      tags:
+      - Stock
+  /stocks/{ticker}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves stock details based on the provided ticker symbol.
+      parameters:
+      - description: Stock Ticker
+        in: path
+        name: ticker
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.Stock'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Retrieve stock by ticker
+      tags:
+      - Stock
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new transaction record in the system.
+      parameters:
+      - description: Transaction data
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.TransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Create a new transaction
+      tags:
+      - Transaction
+  /transactions/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all transactions for a given user.
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.Transaction'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get all Transactions for a user
+      tags:
+      - Transaction
+  /transactions/{username}/{start_time}/{end_time}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves transactions for a user within a specified timestamp.
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: Start Date
+        format: date
+        in: path
+        name: start_time
+        required: true
+        type: string
+      - description: End Date
+        format: date
+        in: path
+        name: end_time
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.Transaction'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Get Transactions for a user by timestamp
+      tags:
+      - Transaction
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Saves new user data into the database.
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Create a new user
+      tags:
+      - User
+  /users/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves user details based on the provided username.
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: get user by username
+      tags:
+      - User
+swagger: "2.0"

@@ -1,3 +1,4 @@
+//db.go
 package config
 
 import (
