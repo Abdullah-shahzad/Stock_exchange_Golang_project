@@ -1,4 +1,4 @@
-//controller.transaction.go
+// controller.transaction.go
 package controllers
 
 import (
@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 type Transaction struct {
 	ID                int     `json:"id"`
 	UserID            int     `json:"user_id"`
@@ -21,7 +20,6 @@ type Transaction struct {
 	Timestamp         string  `json:"timestamp"`
 }
 
-
 type TransactionRequest struct {
 	Username          string `json:"username" example:"abdullah"`
 	Ticker            string `json:"ticker" example:"tia"`
@@ -31,6 +29,7 @@ type TransactionRequest struct {
 
 type SuccessResponse struct {
 	Message string `json:"message"`
+	Token   string `json:"token,omitempty"`
 }
 
 type ErrorResponse struct {
@@ -48,7 +47,8 @@ type ErrorResponse struct {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /transactions [post]
+// @Security BearerAuth
+// @Router /api/transactions [post]
 func CreateTransaction(c *gin.Context) {
 	db := config.ConnectDB()
 	defer db.Close()
@@ -86,14 +86,11 @@ func CreateTransaction(c *gin.Context) {
 	}
 
 	transactionPrice := stockPrice * float64(input.TransactionVolume)
-
-	
 	if input.TransactionType == "BUY" && userBalance < transactionPrice {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Insufficient balance"})
 		return
 	}
 
-	
 	var balanceQuery string
 	if input.TransactionType == "BUY" {
 		balanceQuery = `UPDATE users SET balance = balance - $1 WHERE username = $2`
@@ -106,7 +103,6 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	// Insert transaction into the database
 	insertQuery := `
         INSERT INTO transactions (user_id, ticker, transaction_type, transaction_volume, transaction_price, timestamp)
         VALUES ((SELECT id FROM users WHERE username = $1), $2, $3, $4, $5, $6)`
@@ -116,7 +112,6 @@ func CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	// Return success response
 	c.JSON(http.StatusCreated, SuccessResponse{Message: "Transaction completed successfully"})
 }
 
@@ -129,7 +124,8 @@ func CreateTransaction(c *gin.Context) {
 // @Param username path string true "Username"
 // @Success 200 {array} Transaction
 // @Failure 500 {object} ErrorResponse
-// @Router /transactions/{username} [get]
+// @Security BearerAuth
+// @Router /api/transactions/{username} [get]
 func GetTransactions(c *gin.Context) {
 	db := config.ConnectDB()
 	defer db.Close()
@@ -180,7 +176,8 @@ func GetTransactions(c *gin.Context) {
 // @Param end_time path string true "End timestamp in YYYY-MM-DD format" format(date)
 // @Success 200 {array} Transaction
 // @Failure 500 {object} ErrorResponse
-// @Router /transactions/{username}/{start_time}/{end_time} [get]
+// @Security BearerAuth
+// @Router /api/transactions/{username}/{start_time}/{end_time} [get]
 func GetTransactionsByDate(c *gin.Context) {
 	db := config.ConnectDB()
 	defer db.Close()

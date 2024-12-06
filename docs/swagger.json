@@ -1,14 +1,15 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "A stock exchange API project using the Gin framework",
-        "title": "Stock exchange API",
-        "contact": {}
+        "description": "This is the API documentation for the Stock Exchange project",
+        "title": "Stock Exchange API",
+        "contact": {
+            "name": "abdullah",
+            "email": "abdullahkpr22@gmail.com"
+        }
     },
-    "host": "localhost:8080",
-    "basePath": "/api",
     "paths": {
-        "/stocks": {
+        "/api/stocks": {
             "get": {
                 "description": "Retrieves all stock entries from the database.",
                 "consumes": [
@@ -40,6 +41,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Saves new stock data into the database.",
                 "consumes": [
                     "application/json"
@@ -84,8 +90,13 @@
                 }
             }
         },
-        "/stocks/{ticker}": {
+        "/api/stocks/{ticker}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves stock details based on the provided ticker symbol.",
                 "consumes": [
                     "application/json"
@@ -128,8 +139,13 @@
                 }
             }
         },
-        "/transactions": {
+        "/api/transactions": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Creates a new transaction record in the system.",
                 "consumes": [
                     "application/json"
@@ -180,8 +196,13 @@
                 }
             }
         },
-        "/transactions/{username}": {
+        "/api/transactions/{username}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves a list of all transactions for a given user.",
                 "consumes": [
                     "application/json"
@@ -221,9 +242,14 @@
                 }
             }
         },
-        "/transactions/{username}/{start_time}/{end_time}": {
+        "/api/transactions/{username}/{start_time}/{end_time}": {
             "get": {
-                "description": "Retrieves transactions for a user within a specified timestamp.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves transactions for a specific user within a given time range.",
                 "consumes": [
                     "application/json"
                 ],
@@ -237,7 +263,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Username",
+                        "description": "Username of the user",
                         "name": "username",
                         "in": "path",
                         "required": true
@@ -245,7 +271,7 @@
                     {
                         "type": "string",
                         "format": "date",
-                        "description": "Start Date",
+                        "description": "Start timestamp in YYYY-MM-DD format",
                         "name": "start_time",
                         "in": "path",
                         "required": true
@@ -253,7 +279,7 @@
                     {
                         "type": "string",
                         "format": "date",
-                        "description": "End Date",
+                        "description": "End timestamp in YYYY-MM-DD format",
                         "name": "end_time",
                         "in": "path",
                         "required": true
@@ -278,8 +304,13 @@
                 }
             }
         },
-        "/users": {
+        "/api/users": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Saves new user data into the database.",
                 "consumes": [
                     "application/json"
@@ -324,8 +355,13 @@
                 }
             }
         },
-        "/users/{username}": {
+        "/api/users/{username}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves user details based on the provided username.",
                 "consumes": [
                     "application/json"
@@ -367,6 +403,133 @@
                     }
                 }
             }
+        },
+        "/user/authenticated": {
+            "get": {
+                "description": "Validate the JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth_user"
+                ],
+                "summary": "Check if user is authenticated",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "Login with username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth_user"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "creds",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "description": "Add a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth_user"
+                ],
+                "summary": "Register auth-user",
+                "parameters": [
+                    {
+                        "description": "A_user Data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.A_user"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SignupResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -387,6 +550,36 @@
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginCredentials": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.SignupResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -413,6 +606,9 @@
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -448,7 +644,7 @@
             "properties": {
                 "ticker": {
                     "type": "string",
-                    "example": "Tia"
+                    "example": "tia"
                 },
                 "transaction_type": {
                     "type": "string",
@@ -490,6 +686,30 @@
                     "example": "abdullah"
                 }
             }
+        },
+        "models.A_user": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

@@ -1,4 +1,3 @@
-//controller.stock.go
 package controllers
 
 import (
@@ -9,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Stock represents a stock entity in the database.
 type Stock struct {
 	ID     int     `json:"id"`
 	Ticker string  `json:"ticker" binding:"required"`
@@ -31,7 +29,8 @@ type CreateStockRequest struct {
 // @Success 201 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /stocks [post]
+// @Security BearerAuth
+// @Router /api/stocks [post]
 func CreateStock(c *gin.Context) {
 	db := config.ConnectDB()
 	defer db.Close()
@@ -60,13 +59,12 @@ func CreateStock(c *gin.Context) {
 // @Produce json
 // @Success 200 {array} Stock
 // @Failure 500 {object} ErrorResponse
-// @Router /stocks [get]
+// @Router /api/stocks [get]
 func GetAllStocks(c *gin.Context) {
-	// Connect to the database
+
 	db := config.ConnectDB()
 	defer db.Close()
 
-	// Query to fetch all stocks
 	rows, err := db.Query(`SELECT id, ticker, price FROM stocks`)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
@@ -76,7 +74,6 @@ func GetAllStocks(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// Parse the rows into a slice of Stock
 	var stocks []Stock
 	for rows.Next() {
 		var stock Stock
@@ -90,10 +87,10 @@ func GetAllStocks(c *gin.Context) {
 		stocks = append(stocks, stock)
 	}
 
-	// Return the list of stocks
 	c.JSON(http.StatusOK, stocks)
 }
 
+// @Security BearerAuth
 // GetStockByTicker godoc
 // @Summary Retrieve stock by ticker
 // @Description Retrieves stock details based on the provided ticker symbol.
@@ -104,16 +101,14 @@ func GetAllStocks(c *gin.Context) {
 // @Success 200 {object} Stock
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /stocks/{ticker} [get]
+// @Router /api/stocks/{ticker} [get]
 func GetStockByTicker(c *gin.Context) {
-	// Connect to the database
+	
 	db := config.ConnectDB()
 	defer db.Close()
 
-	// Retrieve ticker from the URL parameter
 	ticker := c.Param("ticker")
 
-	// Query to fetch stock by ticker
 	var stock Stock
 	query := `SELECT id, ticker, price FROM stocks WHERE ticker = $1`
 	err := db.QueryRow(query, ticker).Scan(&stock.ID, &stock.Ticker, &stock.Price)
@@ -129,6 +124,5 @@ func GetStockByTicker(c *gin.Context) {
 		return
 	}
 
-	// Return the stock data
 	c.JSON(http.StatusOK, stock)
 }
