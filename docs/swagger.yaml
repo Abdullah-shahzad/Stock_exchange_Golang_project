@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   controllers.CreateStockRequest:
     properties:
@@ -12,6 +11,25 @@ definitions:
   controllers.ErrorResponse:
     properties:
       error:
+        type: string
+    type: object
+  controllers.LoginCredentials:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  controllers.SignupResponse:
+    properties:
+      message:
+        type: string
+      token:
         type: string
     type: object
   controllers.Stock:
@@ -29,6 +47,8 @@ definitions:
   controllers.SuccessResponse:
     properties:
       message:
+        type: string
+      token:
         type: string
     type: object
   controllers.Transaction:
@@ -51,7 +71,7 @@ definitions:
   controllers.TransactionRequest:
     properties:
       ticker:
-        example: Tia
+        example: tia
         type: string
       transaction_type:
         example: BUY
@@ -81,13 +101,25 @@ definitions:
         example: abdullah
         type: string
     type: object
-host: localhost:8080
+  models.A_user:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
 info:
-  contact: {}
-  description: A stock exchange API project using the Gin framework
-  title: Stock exchange API
+  contact:
+    email: abdullahkpr22@gmail.com
+    name: abdullah
+  description: This is the API documentation for the Stock Exchange project
+  title: Stock Exchange API
 paths:
-  /stocks:
+  /api/stocks:
     get:
       consumes:
       - application/json
@@ -134,10 +166,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new stock entry
       tags:
       - Stock
-  /stocks/{ticker}:
+  /api/stocks/{ticker}:
     get:
       consumes:
       - application/json
@@ -163,10 +197,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Retrieve stock by ticker
       tags:
       - Stock
-  /transactions:
+  /api/transactions:
     post:
       consumes:
       - application/json
@@ -197,10 +233,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new transaction
       tags:
       - Transaction
-  /transactions/{username}:
+  /api/transactions/{username}:
     get:
       consumes:
       - application/json
@@ -224,27 +262,30 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get all Transactions for a user
       tags:
       - Transaction
-  /transactions/{username}/{start_time}/{end_time}:
+  /api/transactions/{username}/{start_time}/{end_time}:
     get:
       consumes:
       - application/json
-      description: Retrieves transactions for a user within a specified timestamp.
+      description: Retrieves transactions for a specific user within a given time
+        range.
       parameters:
-      - description: Username
+      - description: Username of the user
         in: path
         name: username
         required: true
         type: string
-      - description: Start Date
+      - description: Start timestamp in YYYY-MM-DD format
         format: date
         in: path
         name: start_time
         required: true
         type: string
-      - description: End Date
+      - description: End timestamp in YYYY-MM-DD format
         format: date
         in: path
         name: end_time
@@ -263,10 +304,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get Transactions for a user by timestamp
       tags:
       - Transaction
-  /users:
+  /api/users:
     post:
       consumes:
       - application/json
@@ -293,10 +336,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new user
       tags:
       - User
-  /users/{username}:
+  /api/users/{username}:
     get:
       consumes:
       - application/json
@@ -322,7 +367,97 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: get user by username
       tags:
       - User
+  /user/authenticated:
+    get:
+      consumes:
+      - application/json
+      description: Validate the JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Check if user is authenticated
+      tags:
+      - auth_user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: creds
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginCredentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth_user
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Add a new user
+      parameters:
+      - description: A_user Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.A_user'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.SignupResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Register auth-user
+      tags:
+      - auth_user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

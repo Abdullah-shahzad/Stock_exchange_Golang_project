@@ -2,16 +2,20 @@ package main
 
 import (
 	"log"
-	_ "stock_exchange_Golang_project/docs" // Import docs for swagger
+	_ "stock_exchange_Golang_project/docs"
 	"stock_exchange_Golang_project/routes"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Stock exchange API
-// @description A stock exchange API project using the Gin framework
-
+// @title Stock Exchange API
+// @description This is the API documentation for the Stock Exchange project
+// @contact.name abdullah
+// @contact.email abdullahkpr22@gmail.com
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
 // @host localhost:8080
 // @BasePath /api
 func main() {
